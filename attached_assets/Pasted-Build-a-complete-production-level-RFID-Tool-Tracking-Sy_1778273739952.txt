@@ -1,0 +1,383 @@
+Build a complete production-level RFID Tool Tracking System exactly as per the following requirements.
+
+PROJECT NAME:
+rfid-tool-tracking-system
+
+TECH STACK:
+
+Frontend:
+
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
+* React Router DOM
+* Axios
+* React Hook Form
+
+Backend:
+
+* Node.js
+* Express.js
+* TypeScript
+
+Database:
+
+* PostgreSQL
+
+Authentication:
+
+* JWT Authentication
+
+DEPLOYMENT:
+
+* Railway deployment ready
+* Include all Railway configuration files
+* Include environment variable setup
+* Include production scripts
+* Include Docker support if needed
+* Include .env.example
+* Include complete package.json scripts
+* Include proper build commands
+
+IMPORTANT:
+Generate COMPLETE FULL STACK APPLICATION with CLEAN ARCHITECTURE and PROFESSIONAL CODE.
+
+==================================================
+FEATURE REQUIREMENTS
+====================
+
+1. AUTHENTICATION
+
+* Register API
+* Login API
+* JWT token generation
+* Protected routes
+* Password hashing using bcryptjs
+
+2. TOOL MASTER (CRUD)
+   Each tool must contain:
+
+* toolId
+* name
+* category
+* status
+* createdAt
+
+Status values:
+
+* Available
+* Issued
+* Missing
+
+3. ISSUE TOOL
+   Input:
+
+* toolId
+* userId
+
+Logic:
+
+* Check tool exists
+* Check tool available
+* If already issued return error
+* Mark status as Issued
+* Save transaction
+
+4. RETURN TOOL
+   Input:
+
+* toolId
+
+Logic:
+
+* Check tool exists
+* If tool not issued return error
+* Mark status as Available
+* Save transaction
+
+5. INVENTORY RFID SCAN
+   API:
+   POST /scan
+
+Input:
+{
+"scannedTools": ["T001", "T002"]
+}
+
+Logic:
+Compare scanned tools with database tools.
+
+Return:
+{
+"correctTools": [],
+"missingTools": [],
+"extraTools": []
+}
+
+Example:
+
+Database:
+T001
+T002
+T003
+
+Scanned:
+T001
+T004
+
+Output:
+Correct:
+T001
+
+Missing:
+T002
+T003
+
+Extra:
+T004
+
+6. DASHBOARD
+   Display:
+
+* Total tools
+* Issued tools
+* Missing tools
+
+==================================================
+REQUIRED APIs
+=============
+
+AUTH:
+POST /auth/register
+POST /auth/login
+
+TOOLS:
+POST /tools
+GET /tools
+PUT /tools/:id
+DELETE /tools/:id
+
+ISSUE:
+POST /issue
+
+RETURN:
+POST /return
+
+SCAN:
+POST /scan
+
+STATS:
+GET /stats
+
+==================================================
+DATABASE SCHEMA
+===============
+
+USER:
+
+* id
+* name
+* email
+* password
+* createdAt
+
+TOOL:
+
+* id
+* toolId
+* name
+* category
+* status
+* createdAt
+
+TRANSACTION:
+
+* id
+* toolId
+* userId
+* issueDate
+* returnDate
+* actionType
+
+Use PostgreSQL with Prisma ORM.
+
+==================================================
+BACKEND REQUIREMENTS
+====================
+
+Create professional folder structure:
+
+backend/
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   ├── validations/
+│   ├── types/
+│   ├── app.ts
+│   └── server.ts
+│
+├── prisma/
+│   └── schema.prisma
+│
+├── package.json
+├── tsconfig.json
+├── railway.json
+├── Dockerfile
+├── .env.example
+└── README.md
+
+Backend must include:
+
+* Express server
+* Prisma PostgreSQL connection
+* JWT middleware
+* Error handling middleware
+* Validation middleware
+* Clean architecture
+* TypeScript types
+* Production-ready code
+* REST APIs
+* Proper HTTP status codes
+
+==================================================
+FRONTEND REQUIREMENTS
+=====================
+
+Create frontend with:
+
+frontend/
+├── src/
+│   ├── api/
+│   ├── components/
+│   ├── pages/
+│   ├── layouts/
+│   ├── hooks/
+│   ├── routes/
+│   ├── context/
+│   ├── services/
+│   ├── types/
+│   ├── styles/
+│   ├── App.tsx
+│   └── main.tsx
+│
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── railway.json
+├── Dockerfile
+├── .env.example
+└── README.md
+
+Pages:
+
+1. Login Page
+2. Dashboard Page
+3. Tool Master Page
+4. Issue Tool Page
+5. Return Tool Page
+6. Inventory Scan Page
+
+UI REQUIREMENTS:
+
+* Modern UI
+* Responsive design
+* Navbar
+* Sidebar
+* Cards
+* Tables
+* Forms
+* Loading states
+* Toast notifications
+* Protected routes
+* Tailwind CSS styling
+
+==================================================
+TEST CASES (MANDATORY)
+======================
+
+Implement and handle properly:
+
+1. Issue same tool twice
+   Expected:
+   "Tool already issued"
+
+2. Return non-issued tool
+   Expected:
+   "Tool is not issued"
+
+3. Missing tool detection
+
+4. Extra tool detection
+
+==================================================
+DEPLOYMENT REQUIREMENTS
+=======================
+
+Make project fully Railway deployable.
+
+Include:
+
+* railway.json
+* Dockerfile
+* Production environment setup
+* Build scripts
+* Start scripts
+* CORS setup
+* Environment variable setup
+* PostgreSQL Railway support
+
+==================================================
+IMPORTANT OUTPUT REQUIREMENTS
+=============================
+
+Generate COMPLETE FULL PROJECT CODE.
+
+Include:
+
+1. Full backend code
+2. Full frontend code
+3. Prisma schema
+4. JWT auth
+5. API examples
+6. README.md
+7. Railway deployment guide
+8. Docker configuration
+9. Postman collection JSON
+10. .env.example
+11. Clean folder structure
+12. TypeScript everywhere
+13. Proper comments
+14. Production-ready architecture
+
+VERY IMPORTANT:
+At the end, generate EVERYTHING as downloadable ZIP structure.
+
+The ZIP must contain:
+
+* frontend/
+* backend/
+* README.md
+* Postman collection
+* Railway deployment files
+* Docker files
+* Environment examples
+
+The application should run successfully using:
+
+Backend:
+npm install
+npm run dev
+
+Frontend:
+npm install
+npm run dev
+
+And production deployment should work on Railway without additional modification.
+
+Generate COMPLETE code files one by one with proper filenames and folder paths.

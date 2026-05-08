@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "RFID Tool Tracking System"
+version = "1.0.0"
+id = "artifacts/rfid-tracker"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23643
+
+[services.development]
+run = "pnpm --filter @workspace/rfid-tracker run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rfid-tracker", "run", "build" ]
+publicDir = "artifacts/rfid-tracker/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23643"
+BASE_PATH = "/"
