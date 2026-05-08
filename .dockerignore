@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+.git
+.gitignore
+.env
+*.log
+dist
+**/dist
+.replit
+.replit-artifact
+replit.nix
+attached_assets
+artifacts/mockup-sandbox
