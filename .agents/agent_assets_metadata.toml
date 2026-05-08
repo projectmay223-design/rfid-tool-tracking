@@ -1,0 +1,14 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "s2oJlIX9vC_R6DmvWfrp3"
+uri = "file://postman/RFID_Tool_Tracking.postman_collection.json"
+type = "unspecified"
+title = "Postman Collection — RFID Tool Tracking"
+
+[[outputs]]
+id = "6cwtWmzNvXwb2sWLgP_Qs"
+uri = "file://postman/RFID_Tool_Tracking.postman_environment.json"
+type = "unspecified"
+title = "Postman Environment — Local"

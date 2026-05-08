@@ -1,0 +1,869 @@
+{
+  "info": {
+    "name": "RFID Tool Tracking System",
+    "description": "Complete API collection for the RFID Tool Tracking System.\n\n**Quick Start:**\n1. Import this collection and the environment file\n2. Run **Auth → Login** (or Register) — token is saved automatically\n3. All other requests are pre-authorized\n\n**Base URL:** Set `baseUrl` in the environment (e.g. `http://localhost:8080` for local, or your Railway URL for production).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/healthz",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "healthz"]
+            },
+            "description": "Check if the server is running."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has status field', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Register and login. Token is automatically saved to the environment after a successful login or register.",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@rfid.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "description": "Register a new user. The JWT token is saved automatically."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('token', json.token);",
+                  "  pm.environment.set('userId', json.user.id);",
+                  "  console.log('Token saved:', json.token.substring(0, 20) + '...');",
+                  "}",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Has token', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('token');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@rfid.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "description": "Login with email and password. The JWT token is saved automatically to the `token` environment variable."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('token', json.token);",
+                  "  pm.environment.set('userId', json.user.id);",
+                  "  console.log('Logged in as:', json.user.email);",
+                  "  console.log('Token saved automatically');",
+                  "}",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has token', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('token');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login — Wrong Password (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@rfid.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "description": "Should return 401 Unauthorized."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Has error message', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tools",
+      "description": "CRUD operations for tools. All requests require authentication.",
+      "item": [
+        {
+          "name": "List All Tools",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"]
+            },
+            "description": "Get all tools. Optionally filter by status or category."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "const tools = pm.response.json();",
+                  "if (tools.length > 0) {",
+                  "  pm.environment.set('toolId', tools[0].id);",
+                  "  pm.environment.set('toolStringId', tools[0].toolId);",
+                  "  console.log('First tool ID saved:', tools[0].toolId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Tools — Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools?status=Available",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"],
+              "query": [
+                { "key": "status", "value": "Available" }
+              ]
+            },
+            "description": "Filter tools by status. Options: Available, Issued, Missing."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tool",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"T010\",\n  \"name\": \"Hydraulic Jack\",\n  \"category\": \"Heavy Equipment\",\n  \"status\": \"Available\"\n}"
+            },
+            "description": "Create a new tool. `toolId` must be unique."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "  const tool = pm.response.json();",
+                  "  pm.environment.set('newToolId', tool.id);",
+                  "  pm.environment.set('newToolStringId', tool.toolId);",
+                  "  console.log('Created tool:', tool.toolId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Tool — Duplicate ID (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"T001\",\n  \"name\": \"Duplicate Tool\",\n  \"category\": \"Test\"\n}"
+            },
+            "description": "Should return 409 Conflict — Tool ID already exists."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Has error', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tool by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            },
+            "description": "Get a single tool by its numeric database ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tool",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Tool Name\",\n  \"category\": \"Updated Category\"\n}"
+            },
+            "description": "Update a tool's name, category, or status."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark Tool as Missing",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{toolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{toolId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Missing\"\n}"
+            },
+            "description": "Manually mark a tool as Missing."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tool",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/{{newToolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "{{newToolId}}"]
+            },
+            "description": "Delete a tool by its numeric ID. Uses the tool created in 'Create Tool'."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Issue & Return",
+      "description": "Issue a tool to a user, or return it back to inventory.",
+      "item": [
+        {
+          "name": "Issue Tool",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/issue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issue"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"T001\",\n  \"userId\": \"John Smith\"\n}"
+            },
+            "description": "Issue an Available tool to a user. Fails if tool is already Issued."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Action type is issue', () => {",
+                  "  pm.expect(pm.response.json().actionType).to.eql('issue');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Issue Same Tool Again (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/issue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issue"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"T001\",\n  \"userId\": \"Jane Doe\"\n}"
+            },
+            "description": "Test case: Issue same tool twice → should return 400 'Tool already issued'."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 — Tool already issued', () => pm.response.to.have.status(400));",
+                  "pm.test('Error message correct', () => {",
+                  "  pm.expect(pm.response.json().error).to.include('already issued');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Return Tool",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "return"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"T001\"\n}"
+            },
+            "description": "Return an Issued tool back to Available."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Action type is return', () => {",
+                  "  pm.expect(pm.response.json().actionType).to.eql('return');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Return Non-Issued Tool (should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "return"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"T003\"\n}"
+            },
+            "description": "Test case: Return a non-issued tool → should return 400 'Tool is not issued'."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 — Tool not issued', () => pm.response.to.have.status(400));",
+                  "pm.test('Error message correct', () => {",
+                  "  pm.expect(pm.response.json().error).to.include('not issued');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RFID Inventory Scan",
+      "description": "Simulate an RFID scanner feed and compare with the database.",
+      "item": [
+        {
+          "name": "Scan — Full Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "scan"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scannedTools\": [\"T001\", \"T002\", \"T003\", \"T004\", \"T005\", \"T006\", \"T007\", \"T008\"]\n}"
+            },
+            "description": "Scan all tools — should have all correct, none missing, none extra."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has scan results', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.all.keys('correctTools', 'missingTools', 'extraTools', 'summary');",
+                  "});",
+                  "pm.test('No extra tools', () => {",
+                  "  pm.expect(pm.response.json().extraTools).to.have.length(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan — With Missing Tools",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "scan"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scannedTools\": [\"T001\", \"T002\"]\n}"
+            },
+            "description": "Test case: Scan only T001 and T002 — the rest should appear in missingTools."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has missing tools', () => {",
+                  "  pm.expect(pm.response.json().missingTools.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan — With Extra Tools",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "scan"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scannedTools\": [\"T001\", \"T002\", \"T003\", \"T004\", \"T005\", \"T006\", \"T007\", \"T008\", \"T999\", \"T888\"]\n}"
+            },
+            "description": "Test case: Scan includes T999 and T888 which don't exist in DB — they appear in extraTools."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has extra tools', () => {",
+                  "  pm.expect(pm.response.json().extraTools.length).to.be.above(0);",
+                  "});",
+                  "pm.test('Extra tools contain T999', () => {",
+                  "  pm.expect(pm.response.json().extraTools).to.include('T999');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan — Mixed (Missing + Extra)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "scan"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scannedTools\": [\"T001\", \"T004\", \"UNKNOWN-A\"]\n}"
+            },
+            "description": "Realistic scenario: some tools scanned correctly, some DB tools missing from scan, one extra unknown tool."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "description": "View the full history of issue and return events.",
+      "item": [
+        {
+          "name": "List All Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Get the last 50 transactions ordered by date descending."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Transactions — Filter by Tool",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions?toolId=T001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"],
+              "query": [
+                { "key": "toolId", "value": "T001" }
+              ]
+            },
+            "description": "Get transaction history for a specific tool."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats"]
+            },
+            "description": "Get dashboard statistics: totals by status, category breakdown, recent transactions."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has all stat fields', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.all.keys(",
+                  "    'totalTools', 'availableTools', 'issuedTools', 'missingTools',",
+                  "    'totalTransactions', 'recentTransactions', 'categoryBreakdown'",
+                  "  );",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "description": "Test all mandatory error scenarios.",
+      "item": [
+        {
+          "name": "Access Protected Route Without Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools"]
+            },
+            "description": "Should return 401 Unauthorized — no Bearer token provided."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Non-Existent Tool",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/99999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "99999"]
+            },
+            "description": "Should return 404 Not Found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Issue Non-Existent Tool",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/issue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issue"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolId\": \"DOES-NOT-EXIST\",\n  \"userId\": \"Test User\"\n}"
+            },
+            "description": "Should return 404 — tool not found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
