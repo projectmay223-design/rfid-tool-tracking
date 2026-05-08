@@ -15,6 +15,7 @@ COPY lib/api-zod/package.json ./lib/api-zod/
 COPY lib/api-client-react/package.json ./lib/api-client-react/
 COPY artifacts/api-server/package.json ./artifacts/api-server/
 COPY artifacts/rfid-tracker/package.json ./artifacts/rfid-tracker/
+COPY scripts/package.json ./scripts/
 
 # Install all dependencies (including devDeps needed for build + db push)
 RUN rm -rf node_modules pnpm-lock.yaml && pnpm install --no-optional=false
