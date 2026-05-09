@@ -19,10 +19,6 @@ COPY scripts/package.json ./scripts/
 # Install all dependencies
 RUN pnpm install --no-frozen-lockfile
 
-# Fallback: ensure rollup musl native binding is available on Alpine/musl systems
-RUN node -e "require('@rollup/rollup-linux-x64-musl')" 2>/dev/null || \
-    npm install --no-save --ignore-scripts "@rollup/rollup-linux-x64-musl" 2>&1
-
 # Copy all source files
 COPY . .
 
