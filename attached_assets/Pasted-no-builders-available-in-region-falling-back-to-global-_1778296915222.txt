@@ -1,0 +1,115 @@
+no builders available in region - falling back to global scheduling
+scheduling build on Metal builder "builder-fgkiqq"
+fetched snapshot sha256:e2a61871ab2b447cad62608b701978b454d5612cd5897346fb4fc0d3ccfc779f (860 kB bytes)
+fetching snapshot
+840.4 KB
+486ms
+unpacking archive
+1.6 MB
+27ms
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for docker.io/library/node:20-alpine
+495ms
+
+internal
+load .dockerignore
+0ms
+JSONArgsRecommended: JSON arguments recommended for CMD to prevent unintended behavior related to OS signals (line 34)(https://docs.docker.com/go/dockerfile/rule/json-args-recommended/)
+ details: JSON arguments recommended for ENTRYPOINT/CMD to prevent unintended behavior related to OS signals
+
+[ 1/15] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 cached
+12ms
+
+internal
+load build context
+0ms
+
+[ 2/15] RUN npm install -g pnpm@10
+1s
+npm notice
+
+[ 3/15] WORKDIR /app
+356ms
+
+[ 4/15] COPY package.json pnpm-workspace.yaml ./
+291ms
+
+[ 5/15] COPY pnpm-lock.yaml ./
+317ms
+
+[ 6/15] COPY lib/db/package.json ./lib/db/
+253ms
+
+[ 7/15] COPY lib/api-spec/package.json ./lib/api-spec/
+213ms
+
+[ 8/15] COPY lib/api-zod/package.json ./lib/api-zod/
+222ms
+
+[ 9/15] COPY lib/api-client-react/package.json ./lib/api-client-react/
+234ms
+
+1
+COPY artifacts/api-server/package.json ./artifacts/api-server/
+253ms
+
+1
+COPY artifacts/rfid-tracker/package.json ./artifacts/rfid-tracker/
+271ms
+
+1
+RUN pnpm install --no-frozen-lockfile
+9s
+Done in 7.5s using pnpm v10.33.4
+
+1
+COPY . .
+652ms
+
+1
+RUN NODE_ENV=production pnpm --filter @workspace/rfid-tracker run build
+1s
+> @workspace/rfid-tracker@0.0.0 build /app/artifacts/rfid-tracker
+> vite build --config vite.config.ts
+/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:115
+		throw new Error(
+		      ^
+Error: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+
+    at requireWithFriendlyError (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:115:9)
+    at Object.<anonymous> (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:124:76)
+    ... 3 lines matching cause stack trace ...
+    at Module._load (node:internal/modules/cjs/loader:1091:12)
+    at cjsLoader (node:internal/modules/esm/translators:298:15)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24) {
+  [cause]: Error: Cannot find module '@rollup/rollup-linux-x64-musl'
+  Require stack:
+  - /app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+      at Module._load (node:internal/modules/cjs/loader:1038:27)
+      at Module.require (node:internal/modules/cjs/loader:1289:19)
+      at require (node:internal/modules/helpers:182:18)
+      at requireWithFriendlyError (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:97:10)
+      at Object.<anonymous> (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:124:76)
+      at Module._compile (node:internal/modules/cjs/loader:1521:14)
+      at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+      at Module.load (node:internal/modules/cjs/loader:1266:32)
+      at Module._load (node:internal/modules/cjs/loader:1091:12) {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      '/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js'
+    ]
+  }
+}
+Node.js v20.20.2
+/app/artifacts/rfid-tracker:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/rfid-tracker@0.0.0 build: `vite build --config vite.config.ts`
+Exit status 1
+Build Failed: build daemon returned an error < failed to solve: process "/bin/sh -c NODE_ENV=production pnpm --filter @workspace/rfid-tracker run build" did not complete successfully: exit code: 1 >
