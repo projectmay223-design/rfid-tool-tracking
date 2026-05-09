@@ -23,7 +23,7 @@ RUN rm -rf node_modules pnpm-lock.yaml && pnpm install
 COPY . .
 
 # Build frontend (PORT not needed for build; BASE_PATH defaults to /)
-RUN rm -rf node_modules pnpm-lock.yaml && pnpm install && NODE_ENV=production pnpm --filter @workspace/rfid-tracker run build
+RUN NODE_ENV=production pnpm --filter @workspace/rfid-tracker run build
 
 # Build backend
 RUN pnpm --filter @workspace/api-server run build
