@@ -17,13 +17,13 @@ COPY artifacts/api-server/package.json ./artifacts/api-server/
 COPY artifacts/rfid-tracker/package.json ./artifacts/rfid-tracker/
 
 # Install all dependencies (including devDeps needed for build + db push)
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --force
 
 # Copy all source files
 COPY . .
 
 # Build frontend (PORT not needed for build; BASE_PATH defaults to /)
-RUN pnpm install --no-frozen-lockfile && pnpm add -D @rollup/rollup-linux-x64-musl && NODE_ENV=production pnpm --filter @workspace/rfid-tracker run build
+RUN pnpm install --force && NODE_ENV=production pnpm --filter @workspace/rfid-tracker run build
 
 # Build backend
 RUN pnpm --filter @workspace/api-server run build
